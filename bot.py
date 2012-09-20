@@ -4,7 +4,7 @@ import re
 class IRCBot:
     #A simple IRC Bot that pongs et all
     #Requires a call to 'run' to start
-
+    lastline = ''
     def __init__( self, host = 'irc.freenode.net', channel = '#bmslug', nick = 'bmsbot', port = 6667, symbol = '$'):
         self.host = host
         self.channel = channel
@@ -28,12 +28,17 @@ class IRCBot:
         self.socket.send( "NAMES " + self.channel + "\r\n" )
         #Implement parsing this
         
-        
+    def readlines( self ):
+        lines = self.lastline + self.socket.recv( self.maxlength ).split( "\r\n" )
+        self.lastline = lines.pop()
+        return lines
+
     def run( self ):
         while True:
-            line = self.socket.recv( self.maxlength ).strip( "\r\n" )
-            print line
-    
+            lines = self.readlines()
+            for line in lines:
+                print line
+        
     
     def pongToServer( self, msg ):
         #Check if "PING :" is in 'line' and call pongToServer
